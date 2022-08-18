@@ -26,6 +26,9 @@ class Arena {
     return this.getDistance(attacker, defender) <= attacker.getRange()
   }
 
+  getTile(x, y) {
+    return this.tiles.filter(tile => tile.x === x && tile.y === y)
+  }
   /**
    * Calcul the new coordinates after the move if possible
    * @param {Obect} direction 
@@ -39,10 +42,14 @@ class Arena {
     if (direction === "E") this.hero.x -= 1;
     if (direction === "W") this.hero.x += 1;
 
+    const tiles = this.getTile(this.hero.x, this.hero.y);
+
     if (!this.checkOnMap(this.hero.x, this.hero.y)) {
       this.message = "Moving outside the map is not possible";
     } else if (!this.CheckNoMonster(this.hero.x, this.hero.y)) {
       this.message = "Position already used, you can t move here";
+    } else if( tiles.length > 0 && !tiles[0].crossable ) {
+      this.message = "Not crossable";
     } else {
       return { x, y };
     }
@@ -92,7 +99,7 @@ class Arena {
     if (this.isTouchable(arena.hero, arena.monsters[id])) {
       arena.hero.fight(arena.monsters[id]);
 
-      if (this.isTouchable(arena.monsters[id], arena.hero && arena.monsters[id].isAlive())) {
+      if (this.isTouchable(arena.monsters[id], arena.hero) && arena.monsters[id].isAlive()) {
         arena.monsters[id].fight(arena.hero);
       }
 
